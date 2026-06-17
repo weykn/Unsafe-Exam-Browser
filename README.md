@@ -1,6 +1,6 @@
 # Unsafe Exam Browser
 
-## Setup
+### Setup
 
 1. **Download** the latest release from the [Releases page](https://github.com/weykn/safe-Exam-Browser/releases) and extract the ZIP.
 2. **Launch** - drag and drop the config file onto `SafeExamBrowser.exe`.
