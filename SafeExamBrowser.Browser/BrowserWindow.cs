@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using SafeExamBrowser.Applications.Contracts.Events;
 using SafeExamBrowser.Browser.Contracts.Events;
 using SafeExamBrowser.Browser.Events;
+using SafeExamBrowser.UserInterface.Contracts;
 using SafeExamBrowser.Browser.Filters;
 using SafeExamBrowser.Browser.Handlers;
 using SafeExamBrowser.Browser.Integrations;
@@ -58,10 +59,16 @@ namespace SafeExamBrowser.Browser
 		public string Url => context.Url;
 
 		internal event WindowClosedEventHandler Closed;
+		internal event ActionRequestedEventHandler CloseTabRequested;
 		internal event DownloadRequestedEventHandler ConfigurationDownloadRequested;
 		internal event LoseFocusRequestedEventHandler LoseFocusRequested;
+		internal event ActionRequestedEventHandler NewTabRequested;
+		internal event ActionRequestedEventHandler HideTabsRequested;
+		internal event ActionRequestedEventHandler ShowTabsRequested;
 		internal event PopupRequestedEventHandler PopupRequested;
 		internal event ResetRequestedEventHandler ResetRequested;
+		internal event ActionRequestedEventHandler TabSwitchNextRequested;
+		internal event ActionRequestedEventHandler TabSwitchPreviousRequested;
 		internal event TerminationRequestedEventHandler TerminationRequested;
 		internal event UserIdentifierDetectedEventHandler UserIdentifierDetected;
 
@@ -92,6 +99,17 @@ namespace SafeExamBrowser.Browser
 		{
 			Window.Close();
 			Control.Destroy();
+		}
+
+		internal void HideWindow()
+		{
+			Window.Hide();
+		}
+
+		internal void ShowWindow()
+		{
+			Window.Show();
+			Window.BringToForeground();
 		}
 
 		internal void Focus(bool forward)
@@ -147,8 +165,10 @@ namespace SafeExamBrowser.Browser
 				requestHandler,
 				resourceHandler);
 
-			if (IsMainWindow)
+			if (!context.IsPopup)
 			{
+				// Windows that are not CEF-created popups (the main window and windows opened via Ctrl+T) own a full browser
+				// control with their own life span handler, so they can load a start URL and spawn popups of their own.
 				responsibilities.Delegate(WindowTask.InitializeLifeSpanHandler);
 				cefSharpControl = new CefSharpBrowserControl(context.LifeSpanHandler, context.StartUrl);
 			}
@@ -214,15 +234,23 @@ namespace SafeExamBrowser.Browser
 			var keyboardResponsibility = new KeyboardResponsibility(context, keyboardHandler);
 			var lifeSpanResponsibility = new LifeSpanResponsibility(context);
 			var requestResponsibility = new RequestResponsibility(context, requestFilter, requestHandler, resourceHandler);
-			var zoomResponsibilty = new ZoomResponsibility(context, keyboardHandler);
+			var zoomResponsibilty = new ZoomResponsibility(context);
 
 			controlResponsibility.TitleChanged += (t) => TitleChanged?.Invoke(t);
 			cookieResponsibility.UserIdentifierDetected += (i) => UserIdentifierDetected?.Invoke(i);
 			displayResponsibility.Closed += (i) => Closed?.Invoke(i);
+			displayResponsibility.CloseTabRequested += () => CloseTabRequested?.Invoke();
 			displayResponsibility.IconChanged += (i) => IconChanged?.Invoke(i);
 			displayResponsibility.LoseFocusRequested += (f) => LoseFocusRequested?.Invoke(f);
+			displayResponsibility.NewTabRequested += () => NewTabRequested?.Invoke();
+			displayResponsibility.HideTabsRequested += () => HideTabsRequested?.Invoke();
+			displayResponsibility.ShowTabsRequested += () => ShowTabsRequested?.Invoke();
+			displayResponsibility.TabSwitchNextRequested += () => TabSwitchNextRequested?.Invoke();
+			displayResponsibility.TabSwitchPreviousRequested += () => TabSwitchPreviousRequested?.Invoke();
 			downloadResponsibility.ConfigurationDownloadRequested += (f, a) => ConfigurationDownloadRequested?.Invoke(f, a);
-			keyboardResponsibility.LoseFocusRequested += (f) => LoseFocusRequested?.Invoke(f);
+			keyboardResponsibility.NewTabRequested += () => NewTabRequested?.Invoke();
+			keyboardResponsibility.HideTabsRequested += () => HideTabsRequested?.Invoke();
+			keyboardResponsibility.ShowTabsRequested += () => ShowTabsRequested?.Invoke();
 			lifeSpanResponsibility.PopupRequested += (a) => PopupRequested?.Invoke(a);
 			requestResponsibility.ResetRequested += () => ResetRequested?.Invoke();
 			requestResponsibility.TerminationRequested += () => TerminationRequested?.Invoke();

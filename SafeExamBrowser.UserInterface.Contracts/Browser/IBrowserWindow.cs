@@ -46,6 +46,11 @@ namespace SafeExamBrowser.UserInterface.Contracts.Browser
 		event ActionRequestedEventHandler BackwardNavigationRequested;
 
 		/// <summary>
+		/// Event fired when the user requests to close the current browser tab (Ctrl+W).
+		/// </summary>
+		event ActionRequestedEventHandler CloseTabRequested;
+
+		/// <summary>
 		/// Event fired when the user would like to open the developer console.
 		/// </summary>
 		event ActionRequestedEventHandler DeveloperConsoleRequested;
@@ -71,9 +76,34 @@ namespace SafeExamBrowser.UserInterface.Contracts.Browser
 		event LoseFocusRequestedEventHandler LoseFocusRequested;
 
 		/// <summary>
+		/// Event fired when the user requests to open a new browser tab (Ctrl+T).
+		/// </summary>
+		event ActionRequestedEventHandler NewTabRequested;
+
+		/// <summary>
+		/// Event fired when the user requests to hide all opened tab windows (Ctrl+H).
+		/// </summary>
+		event ActionRequestedEventHandler HideTabsRequested;
+
+		/// <summary>
+		/// Event fired when the user requests to restore all previously hidden tab windows (Ctrl+J).
+		/// </summary>
+		event ActionRequestedEventHandler ShowTabsRequested;
+
+		/// <summary>
 		/// Event fired when the user would like to reload the current page.
 		/// </summary>
 		event ActionRequestedEventHandler ReloadRequested;
+
+		/// <summary>
+		/// Event fired when the user requests to switch to the next browser tab (Ctrl+Tab).
+		/// </summary>
+		event ActionRequestedEventHandler TabSwitchNextRequested;
+
+		/// <summary>
+		/// Event fired when the user requests to switch to the previous browser tab (Ctrl+Shift+Tab).
+		/// </summary>
+		event ActionRequestedEventHandler TabSwitchPreviousRequested;
 
 		/// <summary>
 		/// Event fired when the user would like to zoom in.

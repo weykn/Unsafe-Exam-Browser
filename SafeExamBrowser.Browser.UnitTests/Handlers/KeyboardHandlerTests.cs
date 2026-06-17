@@ -1,6 +1,6 @@
-﻿/*
+/*
  * Copyright (c) 2026 ETH Zürich, IT Services
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -25,142 +25,70 @@ namespace SafeExamBrowser.Browser.UnitTests.Handlers
 		}
 
 		[TestMethod]
-		public void MustDetectFindCommand()
+		public void MustDetectNewTabCommand()
 		{
-			var findRequested = false;
+			var newTabRequested = false;
 
-			sut.FindRequested += () => findRequested = true;
+			sut.NewTabRequested += () => newTabRequested = true;
 
-			var handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.F, default(int), CefEventFlags.ControlDown, default(bool));
+			var handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.T, default(int), CefEventFlags.ControlDown, default(bool));
 
-			Assert.IsTrue(findRequested);
+			Assert.IsTrue(newTabRequested);
 			Assert.IsFalse(handled);
 
-			findRequested = false;
+			newTabRequested = false;
 			handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), default(KeyType), default(int), default(int), CefEventFlags.ControlDown, default(bool));
 
-			Assert.IsFalse(findRequested);
+			Assert.IsFalse(newTabRequested);
 			Assert.IsFalse(handled);
 		}
 
 		[TestMethod]
-		public void MustDetectHomeNavigationCommand()
+		public void MustDetectHideTabsCommand()
 		{
-			var homeRequested = false;
+			var hideTabsRequested = false;
 
-			sut.HomeNavigationRequested += () => homeRequested = true;
+			sut.HideTabsRequested += () => hideTabsRequested = true;
 
-			var handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.Home, default(int), default(CefEventFlags), default(bool));
+			var handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.H, default(int), CefEventFlags.ControlDown, default(bool));
 
-			Assert.IsTrue(homeRequested);
+			Assert.IsTrue(hideTabsRequested);
 			Assert.IsFalse(handled);
 
-			homeRequested = false;
-			handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), default(KeyType), default(int), default(int), default(CefEventFlags), default(bool));
+			hideTabsRequested = false;
+			handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.H, default(int), default(CefEventFlags), default(bool));
 
-			Assert.IsFalse(homeRequested);
+			Assert.IsFalse(hideTabsRequested);
 			Assert.IsFalse(handled);
 		}
 
 		[TestMethod]
-		public void MustDetectReloadCommand()
+		public void MustDetectShowTabsCommand()
+		{
+			var showTabsRequested = false;
+
+			sut.ShowTabsRequested += () => showTabsRequested = true;
+
+			var handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.J, default(int), CefEventFlags.ControlDown, default(bool));
+
+			Assert.IsTrue(showTabsRequested);
+			Assert.IsFalse(handled);
+
+			showTabsRequested = false;
+			handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.J, default(int), default(CefEventFlags), default(bool));
+
+			Assert.IsFalse(showTabsRequested);
+			Assert.IsFalse(handled);
+		}
+
+		[TestMethod]
+		public void MustNotHandleAnyKeyInPreKeyEvent()
 		{
 			var isShortcut = default(bool);
-			var reloadRequested = false;
-
-			sut.ReloadRequested += () => reloadRequested = true;
 
 			var handled = sut.OnPreKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.F5, default(int), default(CefEventFlags), default(bool), ref isShortcut);
 
-			Assert.IsTrue(reloadRequested);
-			Assert.IsTrue(handled);
-
-			reloadRequested = false;
-			handled = sut.OnPreKeyEvent(default(IWebBrowser), default(IBrowser), default(KeyType), default(int), default(int), default(CefEventFlags), default(bool), ref isShortcut);
-
-			Assert.IsFalse(reloadRequested);
 			Assert.IsFalse(handled);
-		}
-
-		[TestMethod]
-		public void MustDetectZoomInCommand()
-		{
-			var zoomIn = false;
-			var zoomOut = false;
-			var zoomReset = false;
-
-			sut.ZoomInRequested += () => zoomIn = true;
-			sut.ZoomOutRequested += () => zoomOut = true;
-			sut.ZoomResetRequested += () => zoomReset = true;
-
-			var handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.Add, default(int), CefEventFlags.ControlDown, false);
-
-			Assert.IsFalse(handled);
-			Assert.IsTrue(zoomIn);
-			Assert.IsFalse(zoomOut);
-			Assert.IsFalse(zoomReset);
-
-			zoomIn = false;
-			handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.D1, default(int), CefEventFlags.ControlDown | CefEventFlags.ShiftDown, false);
-
-			Assert.IsFalse(handled);
-			Assert.IsTrue(zoomIn);
-			Assert.IsFalse(zoomOut);
-			Assert.IsFalse(zoomReset);
-		}
-
-		[TestMethod]
-		public void MustDetectZoomOutCommand()
-		{
-			var zoomIn = false;
-			var zoomOut = false;
-			var zoomReset = false;
-
-			sut.ZoomInRequested += () => zoomIn = true;
-			sut.ZoomOutRequested += () => zoomOut = true;
-			sut.ZoomResetRequested += () => zoomReset = true;
-
-			var handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.Subtract, default(int), CefEventFlags.ControlDown, false);
-
-			Assert.IsFalse(handled);
-			Assert.IsFalse(zoomIn);
-			Assert.IsTrue(zoomOut);
-			Assert.IsFalse(zoomReset);
-
-			zoomOut = false;
-			handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.OemMinus, default(int), CefEventFlags.ControlDown, false);
-
-			Assert.IsFalse(handled);
-			Assert.IsFalse(zoomIn);
-			Assert.IsTrue(zoomOut);
-			Assert.IsFalse(zoomReset);
-		}
-
-		[TestMethod]
-		public void MustDetectZoomResetCommand()
-		{
-			var zoomIn = false;
-			var zoomOut = false;
-			var zoomReset = false;
-
-			sut.ZoomInRequested += () => zoomIn = true;
-			sut.ZoomOutRequested += () => zoomOut = true;
-			sut.ZoomResetRequested += () => zoomReset = true;
-
-			var handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.D0, default(int), CefEventFlags.ControlDown, false);
-
-			Assert.IsFalse(handled);
-			Assert.IsFalse(zoomIn);
-			Assert.IsFalse(zoomOut);
-			Assert.IsTrue(zoomReset);
-
-			zoomReset = false;
-			handled = sut.OnKeyEvent(default(IWebBrowser), default(IBrowser), KeyType.KeyUp, (int) Keys.NumPad0, default(int), CefEventFlags.ControlDown, false);
-
-			Assert.IsFalse(handled);
-			Assert.IsFalse(zoomIn);
-			Assert.IsFalse(zoomOut);
-			Assert.IsTrue(zoomReset);
 		}
 	}
 }

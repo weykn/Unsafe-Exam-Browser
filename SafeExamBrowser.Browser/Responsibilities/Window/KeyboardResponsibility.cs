@@ -6,8 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-using SafeExamBrowser.Browser.Contracts.Events;
 using SafeExamBrowser.Browser.Handlers;
+using SafeExamBrowser.UserInterface.Contracts;
 
 namespace SafeExamBrowser.Browser.Responsibilities.Window
 {
@@ -15,7 +15,9 @@ namespace SafeExamBrowser.Browser.Responsibilities.Window
 	{
 		private readonly KeyboardHandler keyboardHandler;
 
-		internal event LoseFocusRequestedEventHandler LoseFocusRequested;
+		internal event ActionRequestedEventHandler NewTabRequested;
+		internal event ActionRequestedEventHandler HideTabsRequested;
+		internal event ActionRequestedEventHandler ShowTabsRequested;
 
 		public KeyboardResponsibility(BrowserWindowContext context, KeyboardHandler keyboardHandler) : base(context)
 		{
@@ -32,43 +34,9 @@ namespace SafeExamBrowser.Browser.Responsibilities.Window
 
 		private void RegisterEvents()
 		{
-			keyboardHandler.FindRequested += KeyboardHandler_FindRequested;
-			keyboardHandler.FocusAddressBarRequested += KeyboardHandler_FocusAddressBarRequested;
-			keyboardHandler.HomeNavigationRequested += HomeNavigationRequested;
-			keyboardHandler.ReloadRequested += ReloadRequested;
-			keyboardHandler.TabPressed += KeyboardHandler_TabPressed;
-		}
-
-		private void KeyboardHandler_FindRequested()
-		{
-			if (Settings.AllowFind)
-			{
-				Window.ShowFindbar();
-			}
-		}
-
-		private void KeyboardHandler_FocusAddressBarRequested()
-		{
-			Window.FocusAddressBar();
-		}
-
-		private void KeyboardHandler_TabPressed(bool shiftPressed)
-		{
-			Control.ExecuteJavaScript("document.activeElement.tagName", result =>
-			{
-				if (result.Result is string tagName && tagName?.ToUpper() == "BODY")
-				{
-					// This means the user is now at the start of the focus / tabIndex chain in the website.
-					if (shiftPressed)
-					{
-						Window.FocusToolbar(!shiftPressed);
-					}
-					else
-					{
-						LoseFocusRequested?.Invoke(true);
-					}
-				}
-			});
+			keyboardHandler.NewTabRequested += () => NewTabRequested?.Invoke();
+			keyboardHandler.HideTabsRequested += () => HideTabsRequested?.Invoke();
+			keyboardHandler.ShowTabsRequested += () => ShowTabsRequested?.Invoke();
 		}
 	}
 }

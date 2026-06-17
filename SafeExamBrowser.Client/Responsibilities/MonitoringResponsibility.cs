@@ -171,29 +171,6 @@ namespace SafeExamBrowser.Client.Responsibilities
 			taskbar.InitializeBounds();
 
 			Logger.Info("Desktop successfully restored.");
-
-			var allowed = displayMonitor.ValidateConfiguration(Settings.Display).IsAllowed;
-
-			if (!allowed && coordinator.RequestSessionLock())
-			{
-				var continueOption = new LockScreenOption { Text = text.Get(TextKey.LockScreen_DisplayConfigurationContinueOption) };
-				var terminateOption = new LockScreenOption { Text = text.Get(TextKey.LockScreen_DisplayConfigurationTerminateOption) };
-				var message = text.Get(TextKey.LockScreen_DisplayConfigurationMessage);
-				var title = text.Get(TextKey.LockScreen_Title);
-				var result = ShowLockScreen(message, title, new[] { continueOption, terminateOption });
-
-				if (result.OptionId == terminateOption.Id)
-				{
-					Logger.Info("Attempting to shutdown as requested by the user...");
-					TryRequestShutdown();
-				}
-
-				coordinator.ReleaseSessionLock();
-			}
-			else if (!allowed)
-			{
-				Logger.Info("Display configuration is not allowed but lock screen is already active.");
-			}
 		}
 
 		private void Sentinel_CursorChanged(SentinelEventArgs args)

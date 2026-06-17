@@ -58,11 +58,17 @@ namespace SafeExamBrowser.UserInterface.Mobile.Windows
 
 		public event AddressChangedEventHandler AddressChanged;
 		public event ActionRequestedEventHandler BackwardNavigationRequested;
+		public event ActionRequestedEventHandler CloseTabRequested;
 		public event ActionRequestedEventHandler DeveloperConsoleRequested;
 		public event FindRequestedEventHandler FindRequested;
 		public event ActionRequestedEventHandler ForwardNavigationRequested;
 		public event ActionRequestedEventHandler HomeNavigationRequested;
+		public event ActionRequestedEventHandler NewTabRequested;
+		public event ActionRequestedEventHandler HideTabsRequested;
+		public event ActionRequestedEventHandler ShowTabsRequested;
 		public event ActionRequestedEventHandler ReloadRequested;
+		public event ActionRequestedEventHandler TabSwitchNextRequested;
+		public event ActionRequestedEventHandler TabSwitchPreviousRequested;
 		public event ActionRequestedEventHandler ZoomInRequested;
 		public event ActionRequestedEventHandler ZoomOutRequested;
 		public event ActionRequestedEventHandler ZoomResetRequested;
@@ -282,52 +288,39 @@ namespace SafeExamBrowser.UserInterface.Mobile.Windows
 
 		private void BrowserWindow_KeyUp(object sender, KeyEventArgs e)
 		{
-			if (e.Key == Key.F5)
+			var hasCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+
+			if (hasCtrl && e.Key == Key.T)
 			{
-				ReloadRequested?.Invoke();
+				NewTabRequested?.Invoke();
 			}
 
-			if (e.Key == Key.Home)
+			if (hasCtrl && e.Key == Key.H)
 			{
-				HomeNavigationRequested?.Invoke();
+				HideTabsRequested?.Invoke();
 			}
 
-			if (settings.AllowFind && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) && e.Key == Key.F)
+			if (hasCtrl && e.Key == Key.J)
 			{
-				ShowFindbar();
+				ShowTabsRequested?.Invoke();
 			}
 
-			if (e.Key == Key.Tab)
+			if (e.Key == Key.Tab && MenuPopup.IsKeyboardFocusWithin)
 			{
-				var hasCtrl = (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
 				var hasShift = (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
-				if (BrowserControlHost.IsFocused && hasCtrl)
-				{
-					if (Findbar.Visibility == Visibility.Hidden || hasShift)
-					{
-						Toolbar.Focus();
-					}
-					else if (Toolbar.Visibility == Visibility.Hidden)
-					{
-						Findbar.Focus();
-					}
-				}
-				else if (MenuPopup.IsKeyboardFocusWithin)
-				{
-					var focusedElement = FocusManager.GetFocusedElement(this);
+				var focusedElement = FocusManager.GetFocusedElement(this);
 
-					if (focusedElement is Control focusedControl && tabKeyDownFocusElement is Control prevFocusedControl)
+				if (focusedElement is Control focusedControl && tabKeyDownFocusElement is Control prevFocusedControl)
+				{
+					if (!hasShift && focusedControl.TabIndex < prevFocusedControl.TabIndex)
 					{
-						if (!hasShift && focusedControl.TabIndex < prevFocusedControl.TabIndex)
-						{
-							MenuPopup.IsOpen = false;
-							FocusBrowser();
-						}
-						else if (hasShift && focusedControl.TabIndex > prevFocusedControl.TabIndex)
-						{
-							MenuPopup.IsOpen = false;
-							MenuButton.Focus();
-						}
+						MenuPopup.IsOpen = false;
+						FocusBrowser();
+					}
+					else if (hasShift && focusedControl.TabIndex > prevFocusedControl.TabIndex)
+					{
+						MenuPopup.IsOpen = false;
+						MenuButton.Focus();
 					}
 				}
 			}

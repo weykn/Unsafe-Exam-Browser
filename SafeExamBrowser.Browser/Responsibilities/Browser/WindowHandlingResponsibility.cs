@@ -33,6 +33,8 @@ namespace SafeExamBrowser.Browser.Responsibilities.Browser
 		private readonly IText text;
 		private readonly IUserInterfaceFactory uiFactory;
 
+		private const string NEW_TAB_URL = "https://www.google.com";
+
 		private int counter = default;
 
 		private IList<BrowserWindow> Windows => Context.Windows;
@@ -88,10 +90,11 @@ namespace SafeExamBrowser.Browser.Responsibilities.Browser
 			}
 		}
 
-		private void CreateNewWindow(PopupRequestedEventArgs args = default)
+		private void CreateNewWindow(PopupRequestedEventArgs args = default, string overrideUrl = default)
 		{
 			var id = ++counter;
-			var startUrl = GenerateStartUrl();
+			var isPopup = args != default;
+			var startUrl = overrideUrl ?? GenerateStartUrl();
 			var windowContext = new BrowserWindowContext
 			{
 				Logger = Logger.CloneFor($"Browser Window #{id}"),
@@ -99,6 +102,7 @@ namespace SafeExamBrowser.Browser.Responsibilities.Browser
 				Icon = new BrowserIconResource(),
 				Id = id,
 				IsMainWindow = Windows.Count == 0,
+				IsPopup = isPopup,
 				MessageBox = messageBox,
 				Settings = Settings,
 				StartUrl = startUrl,
@@ -107,10 +111,18 @@ namespace SafeExamBrowser.Browser.Responsibilities.Browser
 			};
 			var window = new BrowserWindow(AppConfig, windowContext, fileSystemDialog, keyGenerator, sessionMode);
 
+			var thisWindow = window;
+
 			window.Closed += Window_Closed;
+			window.CloseTabRequested += () => Window_CloseTabRequested(thisWindow);
 			window.ConfigurationDownloadRequested += (f, a) => ConfigurationDownloadRequested?.Invoke(f, a);
+			window.NewTabRequested += Window_NewTabRequested;
+			window.HideTabsRequested += HideTabs;
+			window.ShowTabsRequested += ShowTabs;
 			window.PopupRequested += Window_PopupRequested;
 			window.ResetRequested += Window_ResetRequested;
+			window.TabSwitchNextRequested += () => Window_TabSwitchRequested(thisWindow, next: true);
+			window.TabSwitchPreviousRequested += () => Window_TabSwitchRequested(thisWindow, next: false);
 			window.UserIdentifierDetected += (i) => UserIdentifierDetected?.Invoke(i);
 			window.TerminationRequested += () => TerminationRequested?.Invoke();
 			window.LoseFocusRequested += (forward) => LoseFocusRequested?.Invoke(forward);
@@ -155,6 +167,66 @@ namespace SafeExamBrowser.Browser.Responsibilities.Browser
 			Windows.Remove(Windows.First(i => i.Id == id));
 			WindowsChanged?.Invoke();
 			Logger.Info($"Window #{id} has been closed.");
+		}
+
+		private void Window_NewTabRequested()
+		{
+			Logger.Info($"Received request to open a new tab, creating new browser window for '{NEW_TAB_URL}'...");
+			CreateNewWindow(overrideUrl: NEW_TAB_URL);
+		}
+
+		private void HideTabs()
+		{
+			Logger.Info("Received request to hide all opened tabs...");
+
+			foreach (var window in Windows.Where(w => !w.IsMainWindow))
+			{
+				window.HideWindow();
+				Logger.Info($"Hid browser window #{window.Id}.");
+			}
+		}
+
+		private void ShowTabs()
+		{
+			Logger.Info("Received request to restore all opened tabs...");
+
+			foreach (var window in Windows.Where(w => !w.IsMainWindow))
+			{
+				window.ShowWindow();
+				Logger.Info($"Restored browser window #{window.Id}.");
+			}
+		}
+
+		private void Window_CloseTabRequested(BrowserWindow current)
+		{
+			if (current.IsMainWindow)
+			{
+				Logger.Info("Ignoring request to close the main browser window.");
+				return;
+			}
+
+			Logger.Info($"Received request to close browser window #{current.Id}.");
+			current.Close();
+		}
+
+		private void Window_TabSwitchRequested(BrowserWindow current, bool next)
+		{
+			if (Windows.Count <= 1)
+			{
+				return;
+			}
+
+			var index = Windows.IndexOf(current);
+
+			if (index < 0)
+			{
+				return;
+			}
+
+			var newIndex = next ? (index + 1) % Windows.Count : (index - 1 + Windows.Count) % Windows.Count;
+
+			Logger.Info($"Switching from browser window #{current.Id} to window #{Windows[newIndex].Id}.");
+			Windows[newIndex].Activate();
 		}
 
 		private void Window_PopupRequested(PopupRequestedEventArgs args)

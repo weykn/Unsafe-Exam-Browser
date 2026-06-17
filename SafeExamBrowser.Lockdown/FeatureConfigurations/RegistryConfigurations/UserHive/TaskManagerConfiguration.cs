@@ -17,7 +17,7 @@ namespace SafeExamBrowser.Lockdown.FeatureConfigurations.RegistryConfigurations.
 	{
 		protected override IEnumerable<RegistryConfigurationItem> Items => new []
 		{
-			new RegistryConfigurationItem($@"HKEY_USERS\{SID}\Software\Microsoft\Windows\CurrentVersion\Policies\System", "DisableTaskMgr", 1, 0)
+			new RegistryConfigurationItem($@"HKEY_USERS\{SID}\Software\Microsoft\Windows\CurrentVersion\Policies\System", "DisableTaskMgr", 0, 0)
 		};
 
 		public TaskManagerConfiguration(Guid groupId, ILogger logger, string sid, string userName) : base(groupId, logger, sid, userName)

@@ -498,7 +498,10 @@ namespace SafeExamBrowser.WindowsApi
 		public void SetWorkingArea(IBounds bounds)
 		{
 			var workingArea = new RECT { Left = bounds.Left, Top = bounds.Top, Right = bounds.Right, Bottom = bounds.Bottom };
-			var success = User32.SystemParametersInfo(SPI.SETWORKAREA, 0, ref workingArea, SPIF.NONE);
+
+			// Broadcast WM_SETTINGCHANGE so that WPF refreshes its cached SystemParameters.WorkArea. Otherwise windows sized
+			// from the work area (e.g. the fullscreen browser window) keep using the stale value and leave a gap above the taskbar.
+			var success = User32.SystemParametersInfo(SPI.SETWORKAREA, 0, ref workingArea, SPIF.SENDCHANGE);
 
 			if (!success)
 			{

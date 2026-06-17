@@ -6,21 +6,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-using SafeExamBrowser.Browser.Handlers;
-
 namespace SafeExamBrowser.Browser.Responsibilities.Window
 {
 	internal class ZoomResponsibility : WindowResponsibility
 	{
 		private const double ZOOM_FACTOR = 0.2;
 
-		private readonly KeyboardHandler keyboardHandler;
-
 		private double zoomLevel;
 
-		public ZoomResponsibility(BrowserWindowContext context, KeyboardHandler keyboardHandler) : base(context)
+		public ZoomResponsibility(BrowserWindowContext context) : base(context)
 		{
-			this.keyboardHandler = keyboardHandler;
 		}
 
 		public override void Assume(WindowTask task)
@@ -43,10 +38,6 @@ namespace SafeExamBrowser.Browser.Responsibilities.Window
 
 		private void RegisterEvents()
 		{
-			keyboardHandler.ZoomInRequested += ZoomInRequested;
-			keyboardHandler.ZoomOutRequested += ZoomOutRequested;
-			keyboardHandler.ZoomResetRequested += ZoomResetRequested;
-
 			Window.ZoomInRequested += ZoomInRequested;
 			Window.ZoomOutRequested += ZoomOutRequested;
 			Window.ZoomResetRequested += ZoomResetRequested;

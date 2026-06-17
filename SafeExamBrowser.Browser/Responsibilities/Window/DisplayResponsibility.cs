@@ -13,6 +13,7 @@ using SafeExamBrowser.Applications.Contracts.Events;
 using SafeExamBrowser.Browser.Contracts.Events;
 using SafeExamBrowser.Browser.Events;
 using SafeExamBrowser.Browser.Handlers;
+using SafeExamBrowser.UserInterface.Contracts;
 
 namespace SafeExamBrowser.Browser.Responsibilities.Window
 {
@@ -24,8 +25,14 @@ namespace SafeExamBrowser.Browser.Responsibilities.Window
 		private (string term, bool isInitial, bool caseSensitive, bool forward) findParameters;
 
 		internal event WindowClosedEventHandler Closed;
+		internal event ActionRequestedEventHandler CloseTabRequested;
 		internal event IconChangedEventHandler IconChanged;
 		internal event LoseFocusRequestedEventHandler LoseFocusRequested;
+		internal event ActionRequestedEventHandler NewTabRequested;
+		internal event ActionRequestedEventHandler HideTabsRequested;
+		internal event ActionRequestedEventHandler ShowTabsRequested;
+		internal event ActionRequestedEventHandler TabSwitchNextRequested;
+		internal event ActionRequestedEventHandler TabSwitchPreviousRequested;
 
 		public DisplayResponsibility(BrowserWindowContext context, DisplayHandler displayHandler) : base(context)
 		{
@@ -54,8 +61,14 @@ namespace SafeExamBrowser.Browser.Responsibilities.Window
 			Window.FindRequested += Window_FindRequested;
 			Window.ForwardNavigationRequested += Window_ForwardNavigationRequested;
 			Window.HomeNavigationRequested += HomeNavigationRequested;
+			Window.CloseTabRequested += () => CloseTabRequested?.Invoke();
 			Window.LoseFocusRequested += Window_LoseFocusRequested;
+			Window.NewTabRequested += () => NewTabRequested?.Invoke();
+			Window.HideTabsRequested += () => HideTabsRequested?.Invoke();
+			Window.ShowTabsRequested += () => ShowTabsRequested?.Invoke();
 			Window.ReloadRequested += ReloadRequested;
+			Window.TabSwitchNextRequested += () => TabSwitchNextRequested?.Invoke();
+			Window.TabSwitchPreviousRequested += () => TabSwitchPreviousRequested?.Invoke();
 		}
 
 		private void DisplayHandler_FaviconChanged(string uri)
