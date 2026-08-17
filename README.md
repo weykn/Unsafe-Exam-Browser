@@ -1,4 +1,8 @@
-# Unsafe Exam Browser
+# ⚠️ Note
+
+Project moved to [Unsafe Exam Browser 2](https://github.com/weykn/Unsafe-Exam-Browser-2)
+
+## Unsafe Exam Browser
 
 ### Setup
 
