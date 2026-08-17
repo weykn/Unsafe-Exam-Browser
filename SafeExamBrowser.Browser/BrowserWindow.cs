@@ -151,8 +151,8 @@ namespace SafeExamBrowser.Browser
 			var renderHandler = new RenderProcessMessageHandler(appConfig, clipboard, keyGenerator, Settings, context.Text);
 			var requestFilter = new RequestFilter();
 			var requestLogger = logger.CloneFor($"{nameof(RequestHandler)} #{Id}");
-			var resourceHandler = new ResourceHandler(appConfig, requestFilter, integrations, keyGenerator, logger, sessionMode, Settings, windowSettings, context.Text);
-			var requestHandler = new RequestHandler(appConfig, requestFilter, requestLogger, resourceHandler, Settings, windowSettings);
+			var resourceHandler = new ResourceHandler(appConfig, context.BypassFilter, requestFilter, integrations, keyGenerator, logger, sessionMode, Settings, windowSettings, context.Text);
+			var requestHandler = new RequestHandler(appConfig, context.BypassFilter, requestFilter, requestLogger, resourceHandler, Settings, windowSettings);
 
 			InitializeResponsibilities(
 				dialogHandler,

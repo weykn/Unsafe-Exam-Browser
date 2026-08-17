@@ -32,6 +32,7 @@ namespace SafeExamBrowser.Browser.Handlers
 	internal class ResourceHandler : CefSharp.Handler.ResourceRequestHandler
 	{
 		private readonly AppConfig appConfig;
+		private readonly bool bypassFilter;
 		private readonly ContentLoader contentLoader;
 		private readonly IRequestFilter filter;
 		private readonly IEnumerable<Integration> integrations;
@@ -48,6 +49,7 @@ namespace SafeExamBrowser.Browser.Handlers
 
 		internal ResourceHandler(
 			AppConfig appConfig,
+			bool bypassFilter,
 			IRequestFilter filter,
 			IEnumerable<Integration> integrations,
 			IKeyGenerator keyGenerator,
@@ -58,6 +60,7 @@ namespace SafeExamBrowser.Browser.Handlers
 			IText text)
 		{
 			this.appConfig = appConfig;
+			this.bypassFilter = bypassFilter;
 			this.filter = filter;
 			this.integrations = integrations;
 			this.contentLoader = new ContentLoader(text);
@@ -149,6 +152,12 @@ namespace SafeExamBrowser.Browser.Handlers
 		private bool Block(IRequest request)
 		{
 			var block = false;
+
+			// Windows opened by browser features (e.g. new tabs via Ctrl+T) are meant to browse freely and are exempt from the URL filter.
+			if (bypassFilter)
+			{
+				return block;
+			}
 
 			if (settings.Filter.ProcessContentRequests)
 			{

@@ -56,7 +56,7 @@ namespace SafeExamBrowser.Browser.UnitTests.Handlers
 			settings = new BrowserSettings();
 			windowSettings = new WindowSettings();
 			text = new Mock<IText>();
-			resourceHandler = new ResourceHandler(appConfig, filter.Object, integrations, keyGenerator.Object, logger.Object, default, settings, windowSettings, text.Object);
+			resourceHandler = new ResourceHandler(appConfig, false, filter.Object, integrations, keyGenerator.Object, logger.Object, default, settings, windowSettings, text.Object);
 
 			sut = new TestableRequestHandler(appConfig, filter.Object, logger.Object, resourceHandler, settings, windowSettings);
 		}
@@ -299,7 +299,7 @@ namespace SafeExamBrowser.Browser.UnitTests.Handlers
 				ILogger logger,
 				ResourceHandler resourceHandler,
 				BrowserSettings settings,
-				WindowSettings windowSettings) : base(appConfig, filter, logger, resourceHandler, settings, windowSettings)
+				WindowSettings windowSettings) : base(appConfig, false, filter, logger, resourceHandler, settings, windowSettings)
 			{
 			}
 

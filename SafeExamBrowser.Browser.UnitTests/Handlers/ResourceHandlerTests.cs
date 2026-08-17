@@ -340,7 +340,7 @@ namespace SafeExamBrowser.Browser.UnitTests.Handlers
 				SessionMode sessionMode,
 				BrowserSettings settings,
 				WindowSettings windowSettings,
-				IText text) : base(appConfig, filter, integrations, keyGenerator, logger, sessionMode, settings, windowSettings, text)
+				IText text) : base(appConfig, false, filter, integrations, keyGenerator, logger, sessionMode, settings, windowSettings, text)
 			{
 			}
 

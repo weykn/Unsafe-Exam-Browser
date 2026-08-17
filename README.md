@@ -9,6 +9,7 @@
 
 - Bypass integrity check
 - Bypass VM detection
+- Bypass URL filter
 - Bypass display detection
 - Logs disabled
 - Logs automatically cleared

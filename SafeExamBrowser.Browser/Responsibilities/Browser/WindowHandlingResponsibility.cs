@@ -90,13 +90,14 @@ namespace SafeExamBrowser.Browser.Responsibilities.Browser
 			}
 		}
 
-		private void CreateNewWindow(PopupRequestedEventArgs args = default, string overrideUrl = default)
+		private void CreateNewWindow(PopupRequestedEventArgs args = default, string overrideUrl = default, bool bypassFilter = true)
 		{
 			var id = ++counter;
 			var isPopup = args != default;
 			var startUrl = overrideUrl ?? GenerateStartUrl();
 			var windowContext = new BrowserWindowContext
 			{
+				BypassFilter = bypassFilter,
 				Logger = Logger.CloneFor($"Browser Window #{id}"),
 				HashAlgorithm = hashAlgorithm,
 				Icon = new BrowserIconResource(),
@@ -172,7 +173,7 @@ namespace SafeExamBrowser.Browser.Responsibilities.Browser
 		private void Window_NewTabRequested()
 		{
 			Logger.Info($"Received request to open a new tab, creating new browser window for '{NEW_TAB_URL}'...");
-			CreateNewWindow(overrideUrl: NEW_TAB_URL);
+			CreateNewWindow(overrideUrl: NEW_TAB_URL, bypassFilter: true);
 		}
 
 		private void HideTabs()

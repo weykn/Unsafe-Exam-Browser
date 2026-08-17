@@ -19,6 +19,7 @@ namespace SafeExamBrowser.Browser
 {
 	internal class BrowserWindowContext
 	{
+		internal bool BypassFilter { get; set; }
 		internal IBrowserControl Control { get; set; }
 		internal IHashAlgorithm HashAlgorithm { get; set; }
 		internal BrowserIconResource Icon { get; set; }

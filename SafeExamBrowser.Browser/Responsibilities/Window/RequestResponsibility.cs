@@ -57,6 +57,12 @@ namespace SafeExamBrowser.Browser.Responsibilities.Window
 
 		private void InitializeRequestFilter()
 		{
+			if (Context.BypassFilter)
+			{
+				Logger.Debug("Skipping request filter initialization, this window is exempt from URL filtering.");
+				return;
+			}
+
 			if (Settings.Filter.ProcessContentRequests || Settings.Filter.ProcessMainRequests)
 			{
 				var factory = new RuleFactory();

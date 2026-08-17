@@ -25,6 +25,7 @@ namespace SafeExamBrowser.Browser.Handlers
 	internal class RequestHandler : CefSharp.Handler.RequestHandler
 	{
 		private readonly AppConfig appConfig;
+		private readonly bool bypassFilter;
 		private readonly IRequestFilter filter;
 		private readonly ILogger logger;
 		private readonly ResourceHandler resourceHandler;
@@ -38,6 +39,7 @@ namespace SafeExamBrowser.Browser.Handlers
 
 		internal RequestHandler(
 			AppConfig appConfig,
+			bool bypassFilter,
 			IRequestFilter filter,
 			ILogger logger,
 			ResourceHandler resourceHandler,
@@ -45,6 +47,7 @@ namespace SafeExamBrowser.Browser.Handlers
 			WindowSettings windowSettings)
 		{
 			this.appConfig = appConfig;
+			this.bypassFilter = bypassFilter;
 			this.filter = filter;
 			this.logger = logger;
 			this.resourceHandler = resourceHandler;
@@ -183,6 +186,12 @@ namespace SafeExamBrowser.Browser.Handlers
 		private bool Block(IRequest request)
 		{
 			var block = false;
+
+			// Windows opened by browser features (e.g. new tabs via Ctrl+T) are meant to browse freely and are exempt from the URL filter.
+			if (bypassFilter)
+			{
+				return block;
+			}
 
 			if (settings.Filter.ProcessMainRequests || settings.Filter.ProcessContentRequests)
 			{
